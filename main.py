@@ -46,7 +46,7 @@ async def register(customer: Customer):
         raise HTTPException(status_code=403, detail="Registration not allowed from this country")
 
     # Username check
-    if any(c.username == customer.name for c in customers):
+    if any(c.username == customer.username for c in customers):
         raise HTTPException(status_code=409, detail="Username already exists")
 
     # Create customer and account
