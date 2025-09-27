@@ -3,6 +3,7 @@ import uuid
 from fastapi import FastAPI, HTTPException, Query, Body
 
 from schemas import Credential, CustomerBase, CustomerCreate, CustomerDB, AccountBase, AccountDB
+from utils import generate_iban, generate_password
 
 app = FastAPI()
 
@@ -29,7 +30,7 @@ async def register(customer_data: CustomerCreate = Body(...)) -> Credential:
     account_id = uuid.uuid4()
     customer_id = uuid.uuid4()
 
-    iban = "generate_iban()"
+    iban = generate_iban()
     account = AccountDB(
         id=account_id,
         customer_id=customer_id,
@@ -37,7 +38,7 @@ async def register(customer_data: CustomerCreate = Body(...)) -> Credential:
     )
     accounts.append(account)
 
-    password = "generate_password()"
+    password = generate_password()
     customer = CustomerDB(
         id=customer_id,
         password=password,

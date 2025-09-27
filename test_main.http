@@ -10,12 +10,12 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "name": "Alice Example",
+  "name": "Alice Dream",
   "dob": "1990-01-01",
   "address": "123 Example Street, Amsterdam",
   "country": "NL",
   "id_document": "ID-XYZ-123456",
-  "username": "alice123"
+  "username": "alice12138"
 }
 
 ###
@@ -25,11 +25,11 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "username": "alice123",
-  "password": "generate_password()"
+  "username": "alice12138",
+  "password": "2v7qm1yW#+qG"
 }
 
 ###
 
-GET http://127.0.0.1:8000/overview?username=alice123
+GET http://127.0.0.1:8000/overview?username=alice12138
 Accept: application/json
