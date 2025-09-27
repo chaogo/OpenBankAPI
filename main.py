@@ -12,6 +12,7 @@ class Customer(BaseModel):
     country: str
     id_document: str
     username: str
+    password: str | None = None
     account_id: str | None = None
 
     @field_validator("dob")
@@ -29,6 +30,9 @@ class Account(BaseModel):
     currency: str = "EUR"
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
+class Credential(BaseModel):
+    username: str
+    password: str
 
 # Mock database
 customers = []
@@ -39,7 +43,7 @@ allowed_countries = ["NL", "BE", "DE"]
 async def root():
     return {"message": "Hello from OpenBankAPI"}
 
-@app.post("/register")
+@app.post("/register", response_model=Credential)
 async def register(customer: Customer):
     # Country check
     if customer.country not in allowed_countries:
@@ -58,10 +62,21 @@ async def register(customer: Customer):
 
     accounts.append(account)
 
+    password = "generate_password()"
     customer.account_id = "to be added"
+    customer.password = password
     customers.append(customer)
 
     # Response with username and generated password
-    password = "generate_password()"
+    credential = Credential(username=customer.username, password=password)
 
-    return {"username": customer.username, "password": password}
+    return credential
+
+
+@app.post("/logon")
+async def logon(credential: Credential):
+    # Find customer with matching username
+    customer = next((c for c in customers if c.username == credential.username), None)
+    if not customer or customer.password != credential.password:
+        raise HTTPException(status_code=401, detail="Invalid username or password")
+    return {"message": "Login successful"}

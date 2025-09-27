@@ -19,3 +19,12 @@ Accept: application/json
 }
 
 ###
+
+POST http://127.0.0.1:8000/logon
+Content-Type: application/json
+Accept: application/json
+
+{
+  "username": "alice123",
+  "password": "generate_password()"
+}
