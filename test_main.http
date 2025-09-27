@@ -5,7 +5,17 @@ Accept: application/json
 
 ###
 
-GET http://127.0.0.1:8000/hello/User
+POST http://127.0.0.1:8000/register
+Content-Type: application/json
 Accept: application/json
+
+{
+  "name": "Alice Example",
+  "dob": "1990-01-01",
+  "address": "123 Example Street, Amsterdam",
+  "country": "NL",
+  "id_document": "ID-XYZ-123456",
+  "username": "alice123"
+}
 
 ###
