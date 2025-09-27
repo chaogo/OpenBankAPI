@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, field_validator, Field
 from datetime import date, datetime, timezone
 
@@ -80,3 +80,17 @@ async def logon(credential: Credential):
     if not customer or customer.password != credential.password:
         raise HTTPException(status_code=401, detail="Invalid username or password")
     return {"message": "Login successful"}
+
+@app.get("/overview", response_model=Account)
+async def overview(username: str = Query(..., description="Customer username")):
+    # Find the customer
+    customer = next((c for c in customers if c.username == username), None)
+    if not customer:
+        raise HTTPException(status_code=401, detail="Invalid username or password")
+
+    # Find the account
+    account = next((a for a in accounts if a.customer_id == customer.account_id), None)
+    if not account:
+        raise HTTPException(status_code=404, detail="Account not found")
+
+    return account

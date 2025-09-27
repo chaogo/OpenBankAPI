@@ -28,3 +28,8 @@ Accept: application/json
   "username": "alice123",
   "password": "generate_password()"
 }
+
+###
+
+GET http://127.0.0.1:8000/overview?username=alice123
+Accept: application/json
