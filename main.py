@@ -1,8 +1,6 @@
 import uuid
-
 from fastapi import FastAPI, HTTPException, Query, Body
-
-from schemas import Credential, CustomerBase, CustomerCreate, CustomerDB, AccountBase, AccountDB
+from models import Credential, CustomerBase, CustomerCreate, Customer, AccountBase, Account
 from utils import generate_iban, generate_password
 
 app = FastAPI()
@@ -31,20 +29,21 @@ async def register(customer_data: CustomerCreate = Body(...)) -> Credential:
     customer_id = uuid.uuid4()
 
     iban = generate_iban()
-    account = AccountDB(
+    account = Account(
         id=account_id,
         customer_id=customer_id,
         iban=iban
     )
-    accounts.append(account)
 
     password = generate_password()
-    customer = CustomerDB(
+    customer = Customer(
         id=customer_id,
         password=password,
-        account_id=account_id,
         **customer_data.model_dump()
     )
+
+    account.customer = customer
+    accounts.append(account)
     customers.append(customer)
 
     # Response with username and generated password
@@ -69,7 +68,7 @@ async def overview(username: str = Query(..., description="Customer username")):
         raise HTTPException(status_code=401, detail="Invalid username or password")
 
     # Find the account
-    account = next((a for a in accounts if a.customer_id == customer.id), None)
+    account = customer.account
     if not account:
         raise HTTPException(status_code=404, detail="Account not found")
 

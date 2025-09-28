@@ -1,6 +1,6 @@
-from pydantic import BaseModel, field_validator, Field
+from pydantic import BaseModel, field_validator
 from datetime import date, datetime, timezone
-from uuid import UUID
+from uuid import UUID, uuid4
 from sqlmodel import SQLModel, Field, Relationship
 
 # Shared account properties
@@ -10,12 +10,13 @@ class AccountBase(SQLModel):
     balance: float = 0
     currency: str = "EUR"
 
-# Properties that persist in the table account
+# account table
 class Account(AccountBase, table=True):
-    id: UUID = Field(default=None, primary_key=True)
-    customer_id: UUID = Field(foreign_key="customer.id")
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    id: UUID = Field(default_factory=uuid4, primary_key=True)
+    customer_id: UUID = Field(foreign_key="customer.id", unique=True)
     customer: "Customer" = Relationship(back_populates="account")
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
 
 # Shared customer properties
 class CustomerBase(SQLModel):
@@ -28,20 +29,20 @@ class CustomerBase(SQLModel):
 
 # Properties to receive via /register endpoint
 class CustomerCreate(CustomerBase):
-    @field_validator("dob") # pylint: disable=no-self-argument
+    @field_validator("dob")
     def validate_dob(cls, v: date):
         age = (date.today() - v).days // 365
         if age < 18:
             raise ValueError("Customer must be at least 18 years old")
         return v
 
-# Properties that persist in the table customer
+# customer table
 class Customer(CustomerBase, table=True):
-    id: UUID = Field(default=None, primary_key=True)
+    id: UUID = Field(default_factory=uuid4, primary_key=True)
     password: str
-    account_id: UUID
-    registered_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     account: Account = Relationship(back_populates="customer")
+    registered_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
 
 class Credential(BaseModel):
     username: str
