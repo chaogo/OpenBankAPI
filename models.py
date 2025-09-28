@@ -44,6 +44,12 @@ class Customer(CustomerBase, table=True):
     registered_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
+# allowed_countries table
+class AllowedCountry(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    iso_code: str = Field(index=True, unique=True, min_length=2, max_length=2)
+
+
 class Credential(BaseModel):
     username: str
     password: str

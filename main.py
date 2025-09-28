@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException, Query, Body, Depends
 from sqlmodel import Session, select
-from models import Credential, CustomerCreate, Customer, AccountBase, Account
+from models import Credential, CustomerCreate, Customer, AccountBase, Account, AllowedCountry
 from utils import generate_iban, generate_password
 from contextlib import asynccontextmanager
 from db import init_db, get_session
@@ -14,9 +14,6 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-# Mock database
-allowed_countries = ["NL", "BE", "DE"]
-
 @app.get("/")
 async def root():
     return {"message": "Hello from OpenBankAPI"}
@@ -27,7 +24,10 @@ async def register(
     session: Session = Depends(get_session)
 ) -> Credential:
     # Country check
-    if customer_data.country not in allowed_countries:
+    allowed = session.exec(
+        select(AllowedCountry).where(AllowedCountry.iso_code == customer_data.country)
+    ).first()
+    if not allowed:
         raise HTTPException(status_code=403, detail="Registration not allowed from this country")
 
     # Username check
@@ -53,8 +53,6 @@ async def register(
 
     session.add(customer) # account is being added implicitly
     session.commit()
-    session.refresh(customer)
-    session.refresh(account)
 
     return Credential(username=customer_data.username, password=password)
 
