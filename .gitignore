@@ -13,3 +13,6 @@ env/
 
 # Lock files
 uv.lock
+
+# SQLite databases
+*.sqlite
