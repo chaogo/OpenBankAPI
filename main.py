@@ -24,9 +24,7 @@ async def register(
     session: Session = Depends(get_session)
 ) -> Credential:
     # Country check
-    allowed = session.exec(
-        select(AllowedCountry).where(AllowedCountry.iso_code == customer_data.country)
-    ).first()
+    allowed = session.get(AllowedCountry, customer_data.country)
     if not allowed:
         raise HTTPException(status_code=403, detail="Registration not allowed from this country")
 

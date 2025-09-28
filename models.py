@@ -50,8 +50,7 @@ class Customer(CustomerBase, table=True):
 
 # allowed_countries table
 class AllowedCountry(SQLModel, table=True):
-    id: int | None = Field(default=None, primary_key=True)
-    iso_code: str = Field(index=True, unique=True, min_length=2, max_length=2)
+    iso_code: str = Field(primary_key=True, min_length=2, max_length=2)
 
 
 class Credential(BaseModel):

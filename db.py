@@ -8,8 +8,7 @@ engine = create_engine(DATABASE_URL, echo=True)
 def insert_allowed_countries(session: Session):
     initial_allowed_countries = ["NL", "BE", "DE"]
     for country in initial_allowed_countries:
-        existing = session.exec(select(AllowedCountry).where(AllowedCountry.iso_code == country)).first()
-        if not existing:
+        if not session.get(AllowedCountry, country):
             session.add(AllowedCountry(iso_code=country))
     session.commit()
 
