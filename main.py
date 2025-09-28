@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException, Query, Body, Depends
 from sqlmodel import Session, select
-from models import Credential, CustomerCreate, Customer, AccountBase, Account, AllowedCountry
+from models import Credential, CustomerCreate, Customer, AccountBase, Account, AllowedCountry, AccountPublic
 from utils import generate_iban, generate_password
 from contextlib import asynccontextmanager
 from db import init_db, get_session
@@ -49,7 +49,7 @@ async def register(
     )
 
     # Link customer and account
-    customer.account = account
+    customer.accounts.append(account)
 
     session.add(customer) # account is being added implicitly
     session.commit()
@@ -72,11 +72,37 @@ async def logon(
 
     return {"message": "Logon successful"}
 
-@app.get("/overview", response_model=AccountBase)
+@app.post("/openaccount", response_model=AccountPublic)
+async def open_account(
+    username: str = Body(...),
+    password: str = Body(...),
+    account_type: str = Body(...),
+    session: Session = Depends(get_session)
+) -> AccountPublic:
+    customer = session.exec(
+        select(Customer).where(Customer.username == username)
+    ).first()
+    if not customer or customer.password != password:
+        raise HTTPException(status_code=401, detail="Invalid username or password")
+
+    account = Account(
+        iban=generate_iban(),
+        account_type=account_type,
+        customer_id=None  # will be set by relationship
+    )
+    customer.accounts.append(account)
+    session.add(customer)
+    session.commit()
+    session.refresh(account)
+
+    return account
+
+
+@app.get("/overview", response_model=list[AccountPublic])
 async def overview(
     username: str = Query(..., description="Customer username"),
     session: Session = Depends(get_session)
-) -> Account:
+) -> list[AccountPublic]:
     # Find the customer
     customer = session.exec(
         select(Customer).where(Customer.username == username)
@@ -85,8 +111,8 @@ async def overview(
         raise HTTPException(status_code=404, detail="Customer not found")
 
     # Find the account
-    account = customer.account
-    if not account:
+    accounts = customer.accounts
+    if not accounts:
         raise HTTPException(status_code=404, detail="Account not found")
 
-    return account
+    return accounts

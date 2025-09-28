@@ -15,7 +15,7 @@ Accept: application/json
   "address": "123 Example Street, Amsterdam",
   "country": "NL",
   "id_document": "ID-XYZ-123456",
-  "username": "alice12138"
+  "username": "alice1213"
 }
 
 ###
@@ -25,11 +25,23 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "username": "alice12138",
-  "password": "IK+HBeXo4gQy"
+  "username": "alice1213",
+  "password": "1OFxP7M!DV*K"
 }
 
 ###
 
-GET http://127.0.0.1:8000/overview?username=alice12138
+POST http://127.0.0.1:8000/openaccount
+Content-Type: application/json
+Accept: application/json
+
+{
+  "username": "alice1213",
+  "password": "1OFxP7M!DV*K",
+  "account_type": "saving"
+}
+
+###
+
+GET http://127.0.0.1:8000/overview?username=alice1213
 Accept: application/json

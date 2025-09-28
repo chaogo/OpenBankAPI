@@ -9,13 +9,17 @@ class AccountBase(SQLModel):
     account_type: str = "checking"
     balance: float = 0
     currency: str = "EUR"
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+# account properties to response to the customer
+class AccountPublic(AccountBase):
+    pass
 
 # account table
 class Account(AccountBase, table=True):
     id: UUID = Field(default_factory=uuid4, primary_key=True)
-    customer_id: UUID = Field(foreign_key="customer.id", unique=True)
-    customer: "Customer" = Relationship(back_populates="account")
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    customer_id: UUID = Field(foreign_key="customer.id")
+    customer: "Customer" = Relationship(back_populates="accounts")
 
 
 # Shared customer properties
@@ -40,7 +44,7 @@ class CustomerCreate(CustomerBase):
 class Customer(CustomerBase, table=True):
     id: UUID = Field(default_factory=uuid4, primary_key=True)
     password: str
-    account: Account = Relationship(back_populates="customer")
+    accounts: list[Account] = Relationship(back_populates="customer")
     registered_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
