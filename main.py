@@ -22,7 +22,10 @@ app = FastAPI(lifespan=lifespan)
 
 @app.get("/")
 async def root():
-    return {"message": "Hello from OpenBankAPI"}
+    return {
+        "message": "Welcome to OpenBankAPI ;)",
+        "docs": "/docs",
+    }
 
 @app.post(
     "/register",
