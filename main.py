@@ -1,6 +1,11 @@
 from fastapi import FastAPI, HTTPException, Query, Body, Depends
+from fastapi.security import OAuth2PasswordRequestForm
+from jose import jwt
 from sqlmodel import Session, select
-from models import Credential, CustomerCreate, Customer, AccountBase, Account, AllowedCountry, AccountPublic
+
+from auth import create_access_token, get_current_customer
+from models import Credential, CustomerCreate, Customer, AccountBase, Account, AllowedCountry, AccountPublic, \
+    TokenResponse
 from utils import generate_iban, generate_password
 from contextlib import asynccontextmanager
 from db import init_db, get_session
@@ -57,9 +62,9 @@ async def register(
 
 @app.post("/logon")
 async def logon(
-    credential: Credential,
+    credential: OAuth2PasswordRequestForm = Depends(),
     session: Session = Depends(get_session)
-):
+) -> TokenResponse:
     # Find customer with matching username
     customer = session.exec(
         select(Customer).where(Customer.username == credential.username)
@@ -68,21 +73,19 @@ async def logon(
     if not customer or customer.password != credential.password:
         raise HTTPException(status_code=401, detail="Invalid username or password")
 
-    return {"message": "Logon successful"}
+    token_response = TokenResponse(
+        message = "Logon successful",
+        access_token=create_access_token(username=credential.username),
+        token_type="bearer"
+    )
+    return token_response
 
 @app.post("/openaccount", response_model=AccountPublic)
 async def open_account(
-    username: str = Body(...),
-    password: str = Body(...),
+    customer: Customer = Depends(get_current_customer),
     account_type: str = Body(...),
     session: Session = Depends(get_session)
 ) -> AccountPublic:
-    customer = session.exec(
-        select(Customer).where(Customer.username == username)
-    ).first()
-    if not customer or customer.password != password:
-        raise HTTPException(status_code=401, detail="Invalid username or password")
-
     account = Account(
         iban=generate_iban(),
         account_type=account_type,
@@ -97,17 +100,7 @@ async def open_account(
 
 
 @app.get("/overview", response_model=list[AccountPublic])
-async def overview(
-    username: str = Query(..., description="Customer username"),
-    session: Session = Depends(get_session)
-) -> list[AccountPublic]:
-    # Find the customer
-    customer = session.exec(
-        select(Customer).where(Customer.username == username)
-    ).first()
-    if not customer:
-        raise HTTPException(status_code=404, detail="Customer not found")
-
+async def overview(customer: Customer = Depends(get_current_customer)) -> list[AccountPublic]:
     # Find the account
     accounts = customer.accounts
     if not accounts:

@@ -21,27 +21,22 @@ Accept: application/json
 ###
 
 POST http://127.0.0.1:8000/logon
-Content-Type: application/json
+Content-Type: application/x-www-form-urlencoded
 Accept: application/json
 
-{
-  "username": "alice1213",
-  "password": "1OFxP7M!DV*K"
-}
+username=alice1213&password=n5gGqeMmDVQw
 
 ###
 
 POST http://127.0.0.1:8000/openaccount
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhbGljZTEyMTMiLCJleHAiOjE3NTkxNjQyMzB9.za2Ar8Eeq4lsnGSkBhKR4egtF9RacLMd4vNyqqiCiT0
 Content-Type: application/json
 Accept: application/json
 
-{
-  "username": "alice1213",
-  "password": "1OFxP7M!DV*K",
-  "account_type": "saving"
-}
+"saving"
 
 ###
 
-GET http://127.0.0.1:8000/overview?username=alice1213
+GET http://127.0.0.1:8000/overview
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhbGljZTEyMTMiLCJleHAiOjE3NTkxNjQyMzB9.za2Ar8Eeq4lsnGSkBhKR4egtF9RacLMd4vNyqqiCiT0
 Accept: application/json
