@@ -27,6 +27,23 @@ async def root():
         "docs": "/docs",
     }
 
+@app.get(
+    "/health",
+    tags=["Monitoring"],
+    summary="Health check",
+    description="Checks service and database availability",
+    responses={
+        200: {"description": "Service and database are healthy"},
+        503: {"description": "Database is unavailable"}
+    }
+)
+async def healthcheck(session: Session = Depends(get_session)):
+    try:
+        session.exec(select(AllowedCountry)).first()
+        return {"status": "ok", "database": "connected"}
+    except Exception:
+        raise HTTPException(status_code=503, detail="Database unavailable")
+
 @app.post(
     "/register",
     description="Onboard a new customer and automatically open their first account.",
