@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException, Query, Body, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from jose import jwt
 from sqlmodel import Session, select
+from starlette import status
 
 from auth import create_access_token, get_current_customer
 from models import Credential, CustomerCreate, Customer, AccountBase, Account, AllowedCountry, AccountPublic, \
@@ -23,7 +24,17 @@ app = FastAPI(lifespan=lifespan)
 async def root():
     return {"message": "Hello from OpenBankAPI"}
 
-@app.post("/register", response_model=Credential)
+@app.post(
+    "/register",
+    description="Onboard a new customer and automatically open their first account.",
+    tags=["Customer"],
+    response_model=Credential,
+    responses={
+        201: {"description": "Customer registered and account created"},
+        403: {"description": "Registration not allowed from this country"},
+        409: {"description": "Username already exists"},
+    }
+)
 async def register(
     customer_data: CustomerCreate = Body(...),
     session: Session = Depends(get_session)
@@ -60,7 +71,15 @@ async def register(
     return Credential(username=customer_data.username, password=password)
 
 
-@app.post("/logon")
+@app.post(
+    "/logon",
+    tags=["Authentication"],
+    response_model=TokenResponse,
+    responses={
+        200: {"description": "Successful login returning a JWT token"},
+        401: {"description": "Invalid username or password"},
+    }
+)
 async def logon(
     credential: OAuth2PasswordRequestForm = Depends(),
     session: Session = Depends(get_session)
@@ -80,10 +99,19 @@ async def logon(
     )
     return token_response
 
-@app.post("/openaccount", response_model=AccountPublic)
+@app.post(
+    "/openaccount",
+    tags=["Account"],
+    response_model=AccountPublic,
+    responses={
+        201: {"description": "Account created successfully"},
+        401: {"description": "Invalid or expired token"},
+        404: {"description": "Customer not found"},
+    }
+)
 async def open_account(
     customer: Customer = Depends(get_current_customer),
-    account_type: str = Body(...),
+    account_type: str = Body(..., description="Type of account to be opened, for example, 'checking' or 'saving'"),
     session: Session = Depends(get_session)
 ) -> AccountPublic:
     account = Account(
@@ -99,7 +127,18 @@ async def open_account(
     return account
 
 
-@app.get("/overview", response_model=list[AccountPublic])
+@app.get(
+    "/overview",
+    description="List all accounts owned by the customer.",
+    tags=["Account"],
+    response_model=list[AccountPublic],
+    response_description="A list of accounts with IBAN, type, balance, currency, and creation timestamp",
+    responses={
+        200: {"description": "Accounts retrieved successfully"},
+        401: {"description": "Invalid or expired token"},
+        404: {"description": "No accounts found for the customer"},
+    }
+)
 async def overview(customer: Customer = Depends(get_current_customer)) -> list[AccountPublic]:
     # Find the account
     accounts = customer.accounts

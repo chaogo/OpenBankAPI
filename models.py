@@ -5,10 +5,10 @@ from sqlmodel import SQLModel, Field, Relationship
 
 # Shared account properties
 class AccountBase(SQLModel):
-    iban : str
-    account_type: str = "checking"
+    iban : str = Field(..., description="International Bank Account Number (IBAN)")
+    account_type: str = Field("checking", description="Type of account: checking, saving, etc.")
     balance: float = 0
-    currency: str = "EUR"
+    currency: str = Field("EUR", description="Currency code (ISO 4217)")
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 # account properties to response to the customer
@@ -24,12 +24,12 @@ class Account(AccountBase, table=True):
 
 # Shared customer properties
 class CustomerBase(SQLModel):
-    name: str
-    dob: date
-    address: str
-    country: str
-    id_document: str
-    username: str
+    name: str = Field(..., description="Full legal name of the customer")
+    dob: date = Field(..., description="Date of birth (YYYY-MM-DD). Must be 18 years or older to register")
+    address: str = Field(..., description="Residential address")
+    country: str = Field(..., description="2-letter ISO country code of residence. Must be one of the allowed countries (NL, BE, DE)")
+    id_document: str = Field(..., description="Government-issued ID number, e.g., passport number")
+    username: str = Field(..., description="Unique username for login")
 
 # Properties to receive via /register endpoint
 class CustomerCreate(CustomerBase):
@@ -50,7 +50,8 @@ class Customer(CustomerBase, table=True):
 
 # allowed_countries table
 class AllowedCountry(SQLModel, table=True):
-    iso_code: str = Field(primary_key=True, min_length=2, max_length=2)
+    iso_code: str = Field(primary_key=True, min_length=2, max_length=2,
+                          description="2-letter ISO country code allowed for registration")
 
 
 class Credential(BaseModel):
