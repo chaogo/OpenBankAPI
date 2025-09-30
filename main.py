@@ -1,12 +1,9 @@
-from fastapi import FastAPI, HTTPException, Query, Body, Depends
+from fastapi import FastAPI, HTTPException, Body, Depends
 from fastapi.security import OAuth2PasswordRequestForm
-from jose import jwt
 from sqlmodel import Session, select
-from starlette import status
-
 from auth import create_access_token, get_current_customer
-from models import Credential, CustomerCreate, Customer, AccountBase, Account, AllowedCountry, AccountPublic, \
-    TokenResponse, AccountType, AccountRequest, AccountsResponse
+from schemas import Credential, CustomerCreate, AccountPublic, TokenResponse, AccountRequest, AccountsResponse
+from models import Customer, Account, AllowedCountry
 from utils import generate_iban, generate_password
 from contextlib import asynccontextmanager
 from db import init_db, get_session
