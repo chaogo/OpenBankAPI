@@ -1,5 +1,6 @@
 from fastapi import Depends, Body, APIRouter, HTTPException
 from sqlmodel import Session
+from starlette import status
 from auth import get_current_customer
 from db import get_session
 from models import Customer, Account
@@ -11,6 +12,7 @@ router = APIRouter(prefix="/accounts", tags=["Account"])
 @router.post(
     "/open",
     response_model=AccountPublic,
+    status_code=status.HTTP_201_CREATED,
     responses={
         201: {"description": "Account created successfully"},
         401: {"description": "Invalid or expired token"},
