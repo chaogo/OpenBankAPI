@@ -5,20 +5,18 @@ from jose import jwt, JWTError
 from sqlmodel import Session, select
 from db import get_session
 from models import Customer
+from config import settings
 
-SECRET_KEY = "ciaochao"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 def create_access_token(username: str) -> str:
-    expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    expire = datetime.now(timezone.utc) + timedelta(minutes=settings.access_token_expire_minutes)
     to_encode = {"sub": username, "exp": expire}
-    token = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    token = jwt.encode(to_encode, settings.secret_key, algorithm=settings.algorithm)
     return token
 
 def decode_access_token(token: str):
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
         return payload
     except JWTError:
         return None

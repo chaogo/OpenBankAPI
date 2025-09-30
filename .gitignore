@@ -16,3 +16,6 @@ uv.lock
 
 # SQLite databases
 *.sqlite
+
+# Envrionment variables
+.env
