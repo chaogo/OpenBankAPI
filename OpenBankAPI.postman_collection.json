@@ -1,0 +1,328 @@
+{
+	"info": {
+		"_postman_id": "26f51fd6-6ab1-4949-b2f7-7c7319a84cb0",
+		"name": "OpenBankAPI",
+		"description": "Postman collection for OpenBankAPI project, covering customer registration, authentication, open account, accounts overview, and health check scenarios.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23594002",
+		"_collection_link": "https://tip888-2705.postman.co/workspace/AAB~282444b4-2ae0-45e0-8a41-e816219b1e10/collection/23594002-26f51fd6-6ab1-4949-b2f7-7c7319a84cb0?action=share&source=collection_link&creator=23594002"
+	},
+	"item": [
+		{
+			"name": "Customer",
+			"item": [
+				{
+					"name": "Register (success)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Alice Dream\",\n  \"dob\": \"1990-01-01\",\n  \"address\": \"A Street\",\n  \"country\": \"NL\",\n  \"id_document\": \"ID1234567\",\n  \"username\": \"alice12138\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/customers/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"customers",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register (duplicate username)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Alice Dream D\",\n  \"dob\": \"1990-01-01\",\n  \"address\": \"A Street\",\n  \"country\": \"NL\",\n  \"id_document\": \"ID1234567\",\n  \"username\": \"alice12138\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/customers/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"customers",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register (disallowed country)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Dani Wrong\",\n  \"dob\": \"2001-01-01\",\n  \"address\": \"B Street\",\n  \"country\": \"XX\",\n  \"id_document\": \"ID9876543\",\n  \"username\": \"daniwrong\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/customers/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"customers",
+								"register"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Logon (success)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"token\", jsonData.access_token);",
+									"    console.log(\"Token saved to environment:\", jsonData.access_token);",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "alice12138"
+								},
+								{
+									"key": "password",
+									"value": "%sr7)Mb-_qiM"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/logon",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"logon"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logon (invalid password)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "alice12138"
+								},
+								{
+									"key": "password",
+									"value": "wrongpass"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/logon",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"logon"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Accounts",
+			"item": [
+				{
+					"name": "Open Account (success)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"account_type\": \"saving\",\n  \"currency\": \"EUR\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/accounts/open",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"accounts",
+								"open"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Open Account (unauthorized)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"account_type\": \"checking\",\n  \"currency\": \"EUR\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/accounts/open",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"accounts",
+								"open"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Overview (success)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/accounts/overview",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"accounts",
+								"overview"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Overview (unauthorized)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/accounts/overview",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"accounts",
+								"overview"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Health",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/health",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"health"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://127.0.0.1:8000"
+		},
+		{
+			"key": "token",
+			"value": ""
+		}
+	]
+}
