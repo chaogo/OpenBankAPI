@@ -10,7 +10,7 @@ router = APIRouter(prefix="/customers", tags=["Customer"])
 
 @router.post(
     "/register",
-    description="Onboard a new customer and automatically open their first account.",
+    description="Onboard a new customer and automatically open their first checking account.",
     response_model=Credential,
     status_code=status.HTTP_201_CREATED,
     responses={
