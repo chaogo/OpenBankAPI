@@ -20,12 +20,11 @@ async def logon(
     credential: OAuth2PasswordRequestForm = Depends(),
     session: Session = Depends(get_session)
 ) -> TokenResponse:
-    print("hello")
     # Find customer with matching username
     customer = session.exec(
         select(Customer).where(Customer.username == credential.username)
     ).first()
-    print("hello")
+
     if not customer or customer.password != credential.password:
         raise HTTPException(status_code=401, detail="Invalid username or password")
 
