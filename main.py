@@ -6,7 +6,7 @@ from starlette import status
 
 from auth import create_access_token, get_current_customer
 from models import Credential, CustomerCreate, Customer, AccountBase, Account, AllowedCountry, AccountPublic, \
-    TokenResponse
+    TokenResponse, AccountType, AccountRequest
 from utils import generate_iban, generate_password
 from contextlib import asynccontextmanager
 from db import init_db, get_session
@@ -131,12 +131,12 @@ async def logon(
 )
 async def open_account(
     customer: Customer = Depends(get_current_customer),
-    account_type: str = Body(..., description="Type of account to be opened, for example, 'checking' or 'saving'"),
+    account_request: AccountRequest = Body(...),
     session: Session = Depends(get_session)
 ) -> AccountPublic:
     account = Account(
         iban=generate_iban(),
-        account_type=account_type,
+        account_type=account_request.account_type,
         customer_id=None  # will be set by relationship
     )
     customer.accounts.append(account)

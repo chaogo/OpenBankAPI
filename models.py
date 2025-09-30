@@ -1,12 +1,22 @@
+from enum import Enum
 from pydantic import BaseModel, field_validator
 from datetime import date, datetime, timezone
 from uuid import UUID, uuid4
 from sqlmodel import SQLModel, Field, Relationship
 
+class AccountType(str, Enum):
+    """Type of account allowed in the bank"""
+    checking = "checking"
+    saving = "saving"
+    investment = "investment"
+
+class AccountRequest(BaseModel):
+    account_type: AccountType = Field(...)
+
 # Shared account properties
 class AccountBase(SQLModel):
     iban : str = Field(..., description="International Bank Account Number (IBAN)")
-    account_type: str = Field("checking", description="Type of account: checking, saving, etc.")
+    account_type: AccountType = Field(AccountType.checking)
     balance: float = 0
     currency: str = Field("EUR", description="Currency code (ISO 4217)")
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
