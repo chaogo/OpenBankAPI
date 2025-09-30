@@ -49,7 +49,7 @@ async def open_account(
         404: {"description": "No accounts found for the customer"},
     }
 )
-async def overview(customer: Customer = Depends(get_current_customer)) -> list[AccountPublic]:
+async def overview(customer: Customer = Depends(get_current_customer)) -> AccountsResponse:
     # Find the account
     accounts = customer.accounts
     if not accounts:
