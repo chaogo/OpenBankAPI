@@ -1,9 +1,8 @@
-from sqlmodel import SQLModel, create_engine, Session, select
-
+from sqlmodel import SQLModel, create_engine, Session
+from config import settings
 from models import AllowedCountry
 
-DATABASE_URL = "sqlite:///bank.sqlite"
-engine = create_engine(DATABASE_URL, echo=True)
+engine = create_engine(settings.database_url, echo=True)
 
 def insert_allowed_countries(session: Session):
     initial_allowed_countries = ["NL", "BE", "DE"]
