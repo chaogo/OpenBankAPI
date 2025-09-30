@@ -14,6 +14,6 @@ class CustomerBase(SQLModel):
 # customer table
 class Customer(CustomerBase, table=True):
     id: UUID = Field(default_factory=uuid4, primary_key=True)
-    password: str
+    password: str = Field(..., min_length=8, max_length=12)
     accounts: list["Account"] = Relationship(back_populates="customer")
     registered_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
