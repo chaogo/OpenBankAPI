@@ -17,5 +17,6 @@ uv.lock
 # SQLite databases
 *.sqlite
 
-# Envrionment variables
-.env
+# Code coverage
+.coverage
+htmlcov/
