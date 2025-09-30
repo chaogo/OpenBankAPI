@@ -23,6 +23,12 @@ class AccountBase(SQLModel):
     currency: str = Field("EUR", description="Currency code (ISO 4217)")
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
+    @field_validator("balance")
+    def validate_balance(cls, v):
+        if v < 0:
+            raise ValueError("Balance cannot be negative")
+        return v
+
 # account properties to response to the customer
 class AccountPublic(AccountBase):
     pass
@@ -43,9 +49,9 @@ class CustomerBase(SQLModel):
     name: str = Field(..., description="Full legal name of the customer")
     dob: date = Field(..., description="Date of birth (YYYY-MM-DD). Must be 18 years or older to register")
     address: str = Field(..., description="Residential address")
-    country: str = Field(..., description="2-letter ISO country code of residence. Must be one of the allowed countries (NL, BE, DE)")
+    country: str = Field(..., min_length=2, max_length=2, description="2-letter ISO country code of residence. Must be one of the allowed countries (NL, BE, DE)")
     id_document: str = Field(..., description="Government-issued ID number, e.g., passport number")
-    username: str = Field(..., description="Unique username for login")
+    username: str = Field(..., min_length=3, max_length=20, description="Unique username for login (3~20 characters)")
 
 # Properties to receive via /register endpoint
 class CustomerCreate(CustomerBase):
