@@ -14,7 +14,12 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-@app.get("/")
+@app.get(
+    "/",
+    tags=["General"],
+    summary="Home page",
+    description="Welcome endpoint providing a simple landing message and docs link."
+)
 async def root():
     return {
         "message": "Welcome to OpenBankAPI ;)",
