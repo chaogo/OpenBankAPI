@@ -6,7 +6,7 @@ from starlette import status
 
 from auth import create_access_token, get_current_customer
 from models import Credential, CustomerCreate, Customer, AccountBase, Account, AllowedCountry, AccountPublic, \
-    TokenResponse, AccountType, AccountRequest
+    TokenResponse, AccountType, AccountRequest, AccountsResponse
 from utils import generate_iban, generate_password
 from contextlib import asynccontextmanager
 from db import init_db, get_session
@@ -151,7 +151,7 @@ async def open_account(
     "/overview",
     description="List all accounts owned by the customer.",
     tags=["Account"],
-    response_model=list[AccountPublic],
+    response_model=AccountsResponse,
     response_description="A list of accounts with IBAN, type, balance, currency, and creation timestamp",
     responses={
         200: {"description": "Accounts retrieved successfully"},
@@ -165,4 +165,4 @@ async def overview(customer: Customer = Depends(get_current_customer)) -> list[A
     if not accounts:
         raise HTTPException(status_code=404, detail="Account not found")
 
-    return accounts
+    return AccountsResponse(message="Accounts retrieved successfully", accounts=accounts)
