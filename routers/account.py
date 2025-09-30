@@ -28,10 +28,9 @@ async def open_account(
         iban=generate_iban(),
         account_type=account_request.account_type,
         currency=account_request.currency,
-        customer_id=None  # will be set by relationship
     )
     customer.accounts.append(account)
-    session.add(customer)
+    session.add(account)
     session.commit()
     session.refresh(account)
 

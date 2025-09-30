@@ -43,13 +43,12 @@ async def register(
     iban = generate_iban()
     account = Account(
         iban=iban,
-        customer_id=None # will be set by relationship
     )
 
     # Link customer and account
     customer.accounts.append(account)
 
-    session.add(customer) # account is being added implicitly
+    session.add(account) # account is being added implicitly
     session.commit()
 
     return Credential(username=customer_data.username, password=password)
