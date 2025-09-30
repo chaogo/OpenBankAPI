@@ -21,7 +21,7 @@ def decode_access_token(token: str):
     except JWTError:
         return None
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="logon")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/logon")
 
 def get_current_customer(
     token: str = Depends(oauth2_scheme),
